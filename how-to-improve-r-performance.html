@@ -1,0 +1,164 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="Keywords" content="blog"/>
+    <meta name="Description" content="blog"/>
+    <title>Simple</title>
+    <link rel="shortcut icon" href="/static/favicon.png"/>
+    <link rel="stylesheet" type="text/css" href="/main.css" />
+</head>
+<body>
+<div class="main">
+    <div class="header">
+    	<ul id="pages">
+            <li><a href="/">home</a></li>
+            <li><a href="/#/tags">tags</a></li>
+            <li><a href="/#/archive">archive</a></li>
+    	</ul>
+    </div>
+	<div class="wrap-header">
+	<h1>
+    <a href="/" id="title"></a>
+	</h1>
+	</div>
+<div id="md" style="display: none;">
+<!-- markdown -->
+#1 MKL
+R原生的矩阵运算采用BLAS，Intel公司开发的矩阵运算库性能更高，matlab的矩阵预算即采用优化的MKL库，因此，matlab在矩阵运算中性能非常高效。前一阵子被微软收购的Revolution Analytics将MKL直接编译到了R中，替换了默认的BLAS，因此，提高R性能的第一步就是替换默认的R，采用MKL版的R，下载地址在[Revolution R Open](http://www.revolutionanalytics.com/revolution-r-open)，该版本的R与现有的R包完全兼容，因此大可放心使用。
+
+#2 data.table
+不要使用data.frame，使用data.table，且data.table完全兼容data.frame
+
+#3 提前分配好内存
+```
+x=rep(as.numeric(NA), n)
+```
+
+#4 即时编译
+``` r
+library(compiler)
+enableJIT(1)
+```
+#5 向量化
+
+
+#6 Rcpp
+适用于Rcpp加速的情况：
+1. 无法向量化的循环
+2. 递归函数或者需要不停地调用其它函数的函数（Rcpp对调用R内置函数的提速效果不明显）
+3. 需要用到R中没有的高级数据结构，可以通过C++的STL实现
+
+
+
+链接：
+[1](http://www.nimbios.org/tutorials/talks/Pragnesh-talk.pdf)
+[2](http://www.stats.uwo.ca/faculty/yu/Rmpi/windows.htm)
+
+<!-- markdown end -->
+</div>
+<div class="entry" id="main">
+<!-- content -->
+<h1 id="1mkl">1 MKL</h1>
+
+<p>R原生的矩阵运算采用BLAS，Intel公司开发的矩阵运算库性能更高，matlab的矩阵预算即采用优化的MKL库，因此，matlab在矩阵运算中性能非常高效。前一阵子被微软收购的Revolution Analytics将MKL直接编译到了R中，替换了默认的BLAS，因此，提高R性能的第一步就是替换默认的R，采用MKL版的R，下载地址在<a href="http://www.revolutionanalytics.com/revolution-r-open">Revolution R Open</a>，该版本的R与现有的R包完全兼容，因此大可放心使用。</p>
+
+<h1 id="2datatable">2 data.table</h1>
+
+<p>不要使用data.frame，使用data.table，且data.table完全兼容data.frame</p>
+
+<h1 id="3">3 提前分配好内存</h1>
+
+<pre><code>x=rep(as.numeric(NA), n)
+</code></pre>
+
+<h1 id="4">4 即时编译</h1>
+
+<pre><code class=" r">library(compiler)
+enableJIT(1)
+</code></pre>
+
+<h1 id="5">5 向量化</h1>
+
+<h1 id="6rcpp">6 Rcpp</h1>
+
+<p>适用于Rcpp加速的情况：
+1. 无法向量化的循环
+2. 递归函数或者需要不停地调用其它函数的函数（Rcpp对调用R内置函数的提速效果不明显）
+3. 需要用到R中没有的高级数据结构，可以通过C++的STL实现</p>
+
+<p>链接：
+<a href="http://www.nimbios.org/tutorials/talks/Pragnesh-talk.pdf">1</a>
+<a href="http://www.stats.uwo.ca/faculty/yu/Rmpi/windows.htm">2</a></p>
+<!-- content end -->
+</div>
+<br>
+<br>
+    <div id="disqus_thread"></div>
+	<div class="footer">
+		<p>© Copyright 2014 by isnowfy, Designed by isnowfy</p>
+	</div>
+</div>
+<script src="main.js"></script>
+<script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ["\\(", "\\)"]], processEscapes: true}});
+</script>
+<script id="content" type="text/mustache">
+    <h1>{{title}}</h1>
+    <div class="tag">
+    {{date}}
+    {{#tags}}
+    <a href="/#/tag/{{name}}">#{{name}}</a>
+    {{/tags}}
+    </div>
+</script>
+<script id="pagesTemplate" type="text/mustache">
+    {{#pages}}
+    <li>
+        <a href="{{path}}">{{title}}</a>
+    </li>
+    {{/pages}}
+</script>
+<script>
+$(document).ready(function() {
+    $.ajax({
+        url: "main.json",
+        type: "GET",
+        dataType: "json",
+        success: function(data) {
+            $("#title").html(data.name);
+            var pagesTemplate = Hogan.compile($("#pagesTemplate").html());
+            var pagesHtml = pagesTemplate.render({"pages": data.pages});
+            $("#pages").append(pagesHtml);
+            //path
+            var path = "how-to-improve-r-performance.html";
+            //path end
+            var now = 0;
+            for (var i = 0; i < data.posts.length; ++i)
+                if (path == data.posts[i].path)
+                    now = i;
+            var post = data.posts[now];
+            var tmp = post.tags.split(" ");
+            var tags = [];
+            for (var i = 0; i < tmp.length; ++i)
+                if (tmp[i].length > 0)
+                    tags.push({"name": tmp[i]});
+            var contentTemplate = Hogan.compile($("#content").html());
+            var contentHtml = contentTemplate.render({"title": post.title, "tags": tags, "date": post.date});
+            $("#main").prepend(contentHtml);
+            if (data.disqus_shortname.length > 0) {
+                var disqus_shortname = data.disqus_shortname;
+                (function() {
+                    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>
